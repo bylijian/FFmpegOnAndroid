@@ -68,6 +68,18 @@ add_library( # Sets the name of the library.
              # Provides a relative path to your source file(s).
              src/main/cpp/video-player.cpp )
 
+
+add_library( # Sets the name of the library.
+             audioplayer
+
+             # Sets the library as a shared library.
+             SHARED
+
+             # Provides a relative path to your source file(s).
+             src/main/cpp/Util.c
+             src/main/cpp/AudioPlayer.c
+          )
+
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
 # default, you only need to specify the name of the public NDK library
@@ -87,6 +99,27 @@ find_library( # Sets the name of the path variable.
 
 target_link_libraries( # Specifies the target library.
                        videoplayer
+
+                       # Links the target library to the log library
+                       # included in the NDK.
+                       ${log-lib}
+
+                       # Must Link Android System lib
+                       android
+
+                       # Links the target library to the FFmpeglibrary
+                       # included in the NDK.
+                       lib_avcodec
+                       lib_avdevice
+                       lib_avfilter
+                       lib_avformat
+                       lib_avutil
+                       lib_postproc
+                       lib_swresample
+                       lib_swscale
+                        )
+target_link_libraries( # Specifies the target library.
+                       audioplayer
 
                        # Links the target library to the log library
                        # included in the NDK.
