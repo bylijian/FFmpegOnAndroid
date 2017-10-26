@@ -139,3 +139,17 @@ target_link_libraries( # Specifies the target library.
                        lib_swresample
                        lib_swscale
                         )
+
+################################OPEN SL ES ################
+
+add_library( native_audio
+             SHARED
+             src/main/cpp/opensl_io.c
+             src/main/cpp/native_audio.c
+            )
+
+# Include libraries needed for native-audio-jni lib
+target_link_libraries(native_audio
+                      android
+                      log
+                      OpenSLES)

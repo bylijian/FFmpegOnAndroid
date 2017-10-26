@@ -25,4 +25,15 @@
         android:padding="10dp"
         android:text="最简单的FFmpeg mp3 播放"/>
 
+    <Button
+        android:id="@+id/simple_audio_test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/simple_audio_player"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:background="@color/colorPrimary"
+        android:padding="10dp"
+        android:text="Audio 测试"/>
+
 </RelativeLayout>
