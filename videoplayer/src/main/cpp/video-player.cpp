@@ -25,7 +25,6 @@ Java_com_lijian_videoplayer_VideoPlayer_nativePlay(JNIEnv *env, jobject instance
     LOGV("file_name=%s", file_name);
     int ret = 0;
     ANativeWindow *nativeWindow = NULL;
-    AVCodecContext avCodecContext;
     AVCodec *codec = NULL;
 
     //Must call av_register_all() first,register libavformat and register all the muxers, demuxers and
@@ -166,8 +165,9 @@ Java_com_lijian_videoplayer_VideoPlayer_nativePlay(JNIEnv *env, jobject instance
                 }
             }
         }
+        av_packet_unref(&packet);
     }
-    av_packet_unref(&packet);
+
     //这个是参考：http://www.jianshu.com/p/dbef3a36bc84 的代码，使用的新版本FFmpeg废弃的Api，所以修改了一下
 
 //        while (av_read_frame(formatContext, &packet) >= 0) {
@@ -207,9 +207,14 @@ Java_com_lijian_videoplayer_VideoPlayer_nativePlay(JNIEnv *env, jobject instance
     av_free(pRGBFrame);
     // Free the YUV frame
     av_free(pFrame);
+
     avcodec_close(codecContext);
+    avcodec_free_context(&codecContext);
+
     avformat_close_input(&formatContext);
     avformat_free_context(formatContext);
+
+    sws_freeContext(sws_ctx);
     env->ReleaseStringUTFChars(fileName, file_name);
     return JNI_TRUE;
 }
