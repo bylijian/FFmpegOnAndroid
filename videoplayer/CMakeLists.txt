@@ -78,6 +78,8 @@ add_library( # Sets the name of the library.
              # Provides a relative path to your source file(s).
              src/main/cpp/Util.c
              src/main/cpp/AudioPlayer.c
+             src/main/cpp/opensl_io.c
+
           )
 
 # Searches for a specified prebuilt library and stores the path as a
@@ -138,6 +140,7 @@ target_link_libraries( # Specifies the target library.
                        lib_postproc
                        lib_swresample
                        lib_swscale
+                       OpenSLES
                         )
 
 ################################OPEN SL ES ################

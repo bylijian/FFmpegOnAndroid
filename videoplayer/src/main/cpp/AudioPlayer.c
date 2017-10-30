@@ -10,6 +10,8 @@
 #include "include/libswscale/swscale.h"
 #include "include/libavutil/imgutils.h"
 
+#include "opensl_io.h"
+
 #define TAG "AudioPlayer"
 #define AUDIO_INBUF_SIZE 20480
 #define AUDIO_REFILL_THRESH 4096
@@ -34,9 +36,11 @@ void playMp3(const char *filename) {
     const AVCodec *codec;
     AVFormatContext *formatContext;
     AVCodecContext *c = NULL;
-    AVPacket packet;
+    AVPacket *packet;
     AVFrame *frame;
     int audioStream = -1;
+
+    OPENSL_STREAM *stream = NULL;
 
     av_register_all();
     formatContext = avformat_alloc_context();
@@ -55,25 +59,62 @@ void playMp3(const char *filename) {
         return;
     }
     codec = avcodec_find_decoder(AV_CODEC_ID_MP3);
-    c=avcodec_alloc_context3(codec);
+    c = avcodec_alloc_context3(codec);
     avcodec_open2(c, codec, NULL);
-    av_init_packet(&packet);
+    packet = av_packet_alloc();
+    av_init_packet(packet);
     frame = av_frame_alloc();
-    while (av_read_frame(formatContext, &packet) == 0) {
-
-        if (avcodec_send_packet(c, &packet) == 0) {
+    while (av_read_frame(formatContext, packet) == 0) {
+        if (packet->stream_index == audioStream && avcodec_send_packet(c, packet) == 0) {
             while (avcodec_receive_frame(c, frame) == 0) {
-                LOGV("fram->nb_samples=%d ,size=%d", frame->nb_samples, sizeof(frame->data));
+                LOGV("fram->nb_samples=%d ,size=%d,frame->sample_rate=%d,frame->channel_layout=%d,frame->channels=%d,frame->format=%d",
+                     frame->nb_samples, sizeof(frame->data[0]), frame->sample_rate,
+                     frame->channel_layout, frame->channels, frame->format);
+
+                LOGV("frag=%s", av_get_sample_fmt_name(frame->format));
+                LOGV("AV_SAMPLE_FMT_S16=%d", AV_SAMPLE_FMT_S16);
+                LOGV("AV_CH_LAYOUT_STEREO=%d", AV_CH_LAYOUT_STEREO);
+                LOGV("linesize=%d", frame->linesize[0]);
+                LOGV("nb_channel=%d", av_get_channel_layout_nb_channels(frame->channel_layout));
+                LOGV("av_frame_get_channels()=%d", av_frame_get_channels(frame));
+                if (stream == NULL) {
+//                    stream = android_OpenAudioDevice(frame->sample_rate,
+//                                                     av_frame_get_channels(frame),
+//                                                     av_frame_get_channels(frame),
+//                                                     frame->linesize[0] /
+//                                                     sizeof(short));
+
+                    stream = android_OpenAudioDevice(frame->sample_rate,
+                                                     1, 1,
+                                                     frame->linesize[0] /
+                                                     sizeof(short));
+
+                }
+                int samples;
+                short buffer[frame->linesize[0] / 2];
+
+                memcpy(buffer, frame->data[0], frame->linesize[0]);
+
+                samples = android_AudioOut(stream, buffer, frame->linesize[0] / 2);
+                if (samples < 0) {
+                    LOGV("android_AudioOut failed !\n");
+                }
+
+                av_frame_unref(frame);
             }
         }
+        av_packet_unref(packet);
     }
 
-//    codec = avcodec_find_decoder(AV_CODEC_ID_MP3);
-//    c=
-//    if (!codec) {
-//        LOGE("avcodec_find_decoder() error");
-//        return;
-//    }
+
+    android_CloseAudioDevice(stream);
+
+    av_frame_free(&frame);
+    av_packet_free(&packet);
+    avcodec_close(c);
+    avcodec_free_context(&c);
+    avformat_free_context(formatContext);
+
 
 }
 
