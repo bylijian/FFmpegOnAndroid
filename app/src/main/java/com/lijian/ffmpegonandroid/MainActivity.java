@@ -11,6 +11,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button mSimpleVideoPlay;
     private Button mSimpleAudioPlay;
     private Button mAudioTest;
+    private Button mCameraTest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,9 +20,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mSimpleVideoPlay = (Button) findViewById(R.id.simple_video_player);
         mSimpleAudioPlay = (Button) findViewById(R.id.simple_audio_player);
         mAudioTest = (Button) findViewById(R.id.simple_audio_test);
+        mCameraTest = (Button) findViewById(R.id.simple_camera_test);
         mSimpleVideoPlay.setOnClickListener(this);
         mSimpleAudioPlay.setOnClickListener(this);
         mAudioTest.setOnClickListener(this);
+        mCameraTest.setOnClickListener(this);
     }
 
 
@@ -37,7 +40,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.simple_audio_test:
                 gotoAudioTestPlayer();
                 break;
+            case R.id.simple_camera_test:
+                gotoCameraTest();
+                break;
         }
+    }
+
+    private void gotoCameraTest() {
+        Intent intent = new Intent(this, SimpleCameraActivity.class);
+        startActivity(intent);
     }
 
     private void gotoAudioTestPlayer() {

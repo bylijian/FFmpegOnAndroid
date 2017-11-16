@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">FFmpegOnAndroid</string>
+    <string name="picture">拍照</string>
 </resources>
